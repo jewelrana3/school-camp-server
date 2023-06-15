@@ -3,14 +3,14 @@ const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 4000;
 
-// middle ware
+// middleware
 app.use(cors())
-app.use(express.json())
+app.use(express.json());
 
 app.get('/',(req,res)=>{
-    res.send('start now')
-})
+    res.send('server start now')
+});
 
 app.listen(port,()=>{
-    console.log(`server is runnig,${port}`)
+    console.log(`server side is runing,${port}`)
 })
