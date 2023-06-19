@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const cors = require('cors');
 const port = process.env.PORT || 4000;
 
@@ -46,7 +47,8 @@ async function run() {
     const popularCollection = client.db("schoolCamp").collection("popular");
     const instructorCollection = client.db("schoolCamp").collection("instructor");
     const cartCollection = client.db("schoolCamp").collection("cart");
-
+    const paymentCollection = client.db("schoolCamp").collection("payment");
+    
     app.post('/jwt',(req,res)=>{
       const user = req.body;
       const token = jwt.sign(user,process.env.ACCESS_TOKEN_JWT,{
@@ -59,6 +61,13 @@ async function run() {
         const result = await popularCollection.find().toArray()
         res.send(result)
     });
+    app.get('/popular/:id',async(req,res)=>{
+      const id = req.params.id
+        const result = await popularCollection.findOne({_id:new ObjectId(id)})
+        res.send(result)
+    });
+
+    
 
     app.get('/instructor',async(req,res)=>{
         const result = await instructorCollection.find().toArray()
@@ -94,9 +103,27 @@ async function run() {
       const query = {_id:new ObjectId(id)};
       const result = await cartCollection.deleteOne(query);
       res.send(result)
+    });
+
+    // payment create api
+    app.post('/create-payment-intent',async(req,res)=>{
+      const {price} = req.body
+      const amount = price*100
+      const paymentIntent = await stripe.paymentIntents.create({
+         amount : amount,
+        currency : "usd",
+        payment_method_types:['card']
+        
+      });
+      res.send({clientSecret:paymentIntent.client_secret})
     })
 
-   
+  //  payment api releted
+  app.post('/payment',async(req,res)=>{
+    const payment = req.body;
+    const result = await paymentCollection.insertOne(payment)
+    res.send(result)
+  })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
