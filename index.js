@@ -119,10 +119,18 @@ async function run() {
     })
 
   //  payment api releted
-  app.post('/payment',async(req,res)=>{
-    const payment = req.body;
-    const result = await paymentCollection.insertOne(payment)
+  app.get('/payment',async(req,res)=>{
+    const result = await paymentCollection.find().toArray()
     res.send(result)
+  })
+
+  app.post('/payment',verifyJWT,async(req,res)=>{
+    const payment = req.body;
+    const result = await paymentCollection.insertOne(payment);
+
+    const query = {_id:{$in:payment.cartItems.map(id=>new ObjectId(id))}}
+    const deleteItems = await cartCollection.deleteOne(query)
+    res.send({result,deleteItems})
   })
 
     // Send a ping to confirm a successful connection
