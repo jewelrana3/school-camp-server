@@ -50,6 +50,62 @@ async function run() {
     const instructorCollection = client.db("schoolCamp").collection("instructor");
     const cartCollection = client.db("schoolCamp").collection("carts");
     const paymentCollection = client.db("schoolCamp").collection("payment");
+    const feadbackCollection = client.db("schoolCamp").collection("feadbackCollection");
+    
+
+    // jwt 
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
+        expiresIn: '7d'
+      })
+      res.send({ token })
+    })
+
+    // admin verify
+    const verifyAdmin = async(req,res,next)=>{
+      const email = req.decoded.email
+      const query = {email:email}
+      const user = await usersCollection.findOne(query)
+      if(user?.role !== 'admin' ){
+        return res.status(401).send({error:true ,message:'forbidden access'})
+      }
+      next()
+    }
+
+    // instructor verify
+    const verifyInstructor = async(req,res,next)=>{
+      const email = req.decoded.email
+      const query = {email:email}
+      if(user?.role !== 'instructor'){
+        return res.status(403).send({error:true,message:'forbidden access'})
+      }
+      next()
+    }
+
+    // admin secure
+    app.get('/users/admin/:email',verifyJWT,async(req,res)=>{
+      const email = req.params.email
+      if(req.decoded.email !== email){
+        return res.send({admin:false})
+      }
+      const query = { email:email}
+      const user = await usersCollection.findOne(query)
+      const result = { admin : user?.role === 'admin'}
+      res.send(result)
+    })
+
+    // instructor secure
+    app.get('/users/instructor/:email',verifyJWT,async(req,res)=>{
+      const email = req.decoded.email
+      if(req.decoded.email !== email){
+        return res.send({ admin : false})
+      }
+      const query = {email : email}
+      const user = await usersCollection.findOne(query)
+      const result = {admin : user?.role === 'instructor'}
+      res.send(result)
+    })
 
     // all class
     app.get("/allClass", async (req, res) => {
@@ -89,13 +145,7 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/jwt', (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
-        expiresIn: '7d'
-      })
-      res.send({ token })
-    })
+   
 
     app.get('/popular', async (req, res) => {
       const result = await popularCollection.find().toArray()
@@ -169,6 +219,13 @@ async function run() {
       const query = { _id: { $in: payment.cartItems.map(id => new ObjectId(id)) } }
       const deleteItems = await cartCollection.deleteOne(query)
       res.send({ result, deleteItems })
+    })
+
+    // feadback side
+    app.post('/feadbackCollection',async(req,res)=>{
+      const data = req.body
+      const result = await feadbackCollection.insertOne(data)
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
