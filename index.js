@@ -43,12 +43,32 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-
+    
+    const addclassCollection = client.db("schoolCamp").collection("addclass");
     const usersCollection = client.db("schoolCamp").collection("users");
     const popularCollection = client.db("schoolCamp").collection("popular");
     const instructorCollection = client.db("schoolCamp").collection("instructor");
     const cartCollection = client.db("schoolCamp").collection("carts");
     const paymentCollection = client.db("schoolCamp").collection("payment");
+
+    // all class
+    app.get("/allClass", async (req, res) => {
+      const result = await addclassCollection.find().toArray();
+      if (!result) {
+        res.status(401).send({ error: true, message: "not found" });
+      }
+      res.send(result);
+    });
+
+    // add classes
+    app.post('/addclass',async(req,res)=>{
+      const data = req.body
+      if(!data){
+        return res.send({message:'data not found'})
+      }
+      const result = await addclassCollection.insertOne(data)
+      res.send(result)
+    })
 
     // all users
     app.get('/users',async(req,res)=>{
