@@ -285,6 +285,8 @@ async function run() {
           status:'denied'
         }
       }
+      const result = await addclassCollection.updateOne(query,updateDoc)
+      res.send(result)
     })
 
 
