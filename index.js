@@ -116,8 +116,17 @@ async function run() {
       res.send(result);
     });
 
+    // // aprove class
+    // app.get('/classes',async(req,res)=>{
+    //   const query = {status:'approved'}
+    //   const result = await addclassCollection.find(query).toArray()
+    //   if(!result){
+    //     return res.status(401).send({error:true,message:'class not found'})
+    //   }
+    // })
+
     // add classes
-    app.post('/addclass',async(req,res)=>{
+    app.post('/addclass',verifyJWT,verifyInstructor,async(req,res)=>{
       const data = req.body
       if(!data){
         return res.send({message:'data not found'})
@@ -252,6 +261,30 @@ async function run() {
       }
       const result = await usersCollection.updateOne(filter,updateDoc)
       res.send(result)
+    })
+
+    // approve update
+    app.patch('/approved/:id',verifyJWT,verifyAdmin,async(req,res)=>{
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const updateDoc = {
+        $set:{
+          status:'approved'
+        }
+      }
+      const result = await addclassCollection.updateOne(filter,updateDoc)
+      res.send(result)
+    })
+
+    // denied
+    app.patch('/denied/:id',verifyJWT,verifyAdmin,async(req,res)=>{
+      const id = req.params.id
+      const query = {_id:new ObjectId(id)}
+      const updateDoc = {
+        $set:{
+          status:'denied'
+        }
+      }
     })
 
 
