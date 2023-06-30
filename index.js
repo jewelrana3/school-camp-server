@@ -157,9 +157,10 @@ async function run() {
    
 
     app.get('/popular', async (req, res) => {
-      const result = await popularCollection.find().toArray()
+      const result = await popularCollection.find().sort({students:-1}).toArray()
       res.send(result)
     });
+
     app.get('/popular/:id', async (req, res) => {
       const id = req.params.id
       const result = await popularCollection.findOne({ _id: new ObjectId(id) })
@@ -169,7 +170,7 @@ async function run() {
 
 
     app.get('/instructor', async (req, res) => {
-      const result = await instructorCollection.find().toArray()
+      const result = await instructorCollection.find().sort({students:-1}).toArray()
       res.send(result)
     })
     // cart api
