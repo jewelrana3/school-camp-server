@@ -42,7 +42,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     
     const addclassCollection = client.db("schoolCamp").collection("addclass");
     const usersCollection = client.db("schoolCamp").collection("users");
@@ -57,7 +57,7 @@ async function run() {
     app.post('/jwt', (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
-        expiresIn: '7d'
+        expiresIn: '3d'
       })
       res.send({ token })
     })
@@ -296,7 +296,7 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
