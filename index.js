@@ -44,6 +44,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     
+  
     const addclassCollection = client.db("schoolCamp").collection("addclass");
     const usersCollection = client.db("schoolCamp").collection("users");
     const popularCollection = client.db("schoolCamp").collection("popular");
@@ -166,13 +167,16 @@ async function run() {
       const result = await popularCollection.findOne({ _id: new ObjectId(id) })
       res.send(result)
     });
-
+   
 
 
     app.get('/instructor', async (req, res) => {
       const result = await instructorCollection.find().sort({students:-1}).toArray()
       res.send(result)
     })
+
+    
+
     // cart api
     app.get('/carts',verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -190,13 +194,13 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/cart', async (req, res) => {
+    app.post('/carts', async (req, res) => {
       const item = req.body;
       const result = await cartCollection.insertOne(item)
       res.send(result)
     })
 
-    app.delete('/cart/:id', async (req, res) => {
+    app.delete('/carts/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
