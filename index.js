@@ -23,8 +23,9 @@ const verifyJWT = (req, res, next) => {
       return res.status(403).send({ error: true, message: 'Unauthorization access not verify' })
     }
     req.decoded = decoded;
-    next()
+   
   })
+  next()
 }
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -57,8 +58,10 @@ async function run() {
     // jwt 
     app.post('/jwt', (req, res) => {
       const user = req.body;
+      const expiresInMonth = 2;
+      const expiresInDay = expiresInMonth * 30; 
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
-        expiresIn: '3d'
+        expiresIn: `{expiresInDay}d`
       })
       res.send({ token })
     })
@@ -78,6 +81,7 @@ async function run() {
     const verifyInstructor = async(req,res,next)=>{
       const email = req.decoded.email
       const query = {email:email}
+      const user = await usersCollection.findOne(query)
       if(user?.role !== 'instructor'){
         return res.status(403).send({error:true,message:'forbidden access'})
       }
@@ -169,11 +173,13 @@ async function run() {
     });
    
 
+    
 
     app.get('/instructor', async (req, res) => {
       const result = await instructorCollection.find().sort({students:-1}).toArray()
       res.send(result)
     })
+   
 
     
 
