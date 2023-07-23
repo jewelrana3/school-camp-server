@@ -58,10 +58,8 @@ async function run() {
     // jwt 
     app.post('/jwt', (req, res) => {
       const user = req.body;
-      const expiresInMonth = 2;
-      const expiresInDay = expiresInMonth * 30; 
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
-        expiresIn: `{expiresInDay}d`
+        expiresIn: '7d'
       })
       res.send({ token })
     })
@@ -150,6 +148,7 @@ async function run() {
     app.post('/users', async (req, res) => {
       const user = req.body
       const query = {email:user?.email}
+      console.log(query)
       const extingUser = await usersCollection.findOne(query)
 
       if(extingUser){
@@ -176,7 +175,8 @@ async function run() {
     
 
     app.get('/instructor', async (req, res) => {
-      const result = await instructorCollection.find().sort({students:-1}).toArray()
+      const query={role:"instructor"}
+      const result = await usersCollection.find(query).sort({students:-1}).toArray()
       res.send(result)
     })
    
