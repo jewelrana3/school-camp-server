@@ -175,9 +175,10 @@ async function run() {
     
 
     app.get('/instructor', async (req, res) => {
-      const query={role:"instructor"}
-      const result = await usersCollection.find(query).sort({students:-1}).toArray()
+      // const query={role:"instructor"}
+      const result = await instructorCollection.find().sort({students:-1}).toArray()
       res.send(result)
+     
     })
    
 
